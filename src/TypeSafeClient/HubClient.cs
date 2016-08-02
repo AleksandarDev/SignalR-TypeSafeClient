@@ -227,12 +227,12 @@ namespace TypeSafeClient
             {
                 return obj.ToObject<T>(_proxy.JsonSerializer);
             }
-
-			// Note: Aleksandar Toplek, 2016.08.02 Using Castle DynamicProxy instead of custom to enable WinRT support
-	        var proxyGenerator = new Castle.DynamicProxy.ProxyGenerator();
-	        var dummy = proxyGenerator.CreateInterfaceProxyWithTargetInterface(typeof(T));
-
-            return (T)obj.ToObject(dummy.GetType(), _proxy.JsonSerializer);
+#if WIN81
+			throw new NotSupportedException("Interfaces and abstract classes are not supported.");
+#else
+			var dummy = DynamicProxy.GetInstanceFor<T>();
+			return (T)obj.ToObject(dummy.GetType(), _proxy.JsonSerializer);
+#endif
         }
 
     }
